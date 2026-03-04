@@ -12,9 +12,8 @@ export OMP_NUM_THREADS=1
 export NANOCHAT_BASE_DIR="$HOME/.cache/nanochat"
 
 cd $SLURM_SUBMIT_DIR
-source .venv/bin/activate
 
-torchrun --standalone --nproc_per_node=8 \
+uv run torchrun --standalone --nproc_per_node=8 \
     -m scripts.sedd_train \
     --depth=12 \
     --fp8 \
