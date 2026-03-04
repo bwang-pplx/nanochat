@@ -58,7 +58,7 @@ def _use_fa3():
 # =============================================================================
 # SDPA helpers
 # =============================================================================
-def _sdpa_attention(q, k, v, window_size, enable_gqa):
+def _sdpa_attention(q, k, v, window_size, enable_gqa, causal=True):
     """
     SDPA attention with sliding window support.
     q, k, v are (B, H, T, D) format.
@@ -69,7 +69,7 @@ def _sdpa_attention(q, k, v, window_size, enable_gqa):
 
     # Full context, same length
     if (window < 0 or window >= Tq) and Tq == Tk:
-        return F.scaled_dot_product_attention(q, k, v, is_causal=True, enable_gqa=enable_gqa)
+        return F.scaled_dot_product_attention(q, k, v, is_causal=causal, enable_gqa=enable_gqa)
 
     # Single token generation
     if Tq == 1:
@@ -116,7 +116,7 @@ def flash_attn_func(q, k, v, causal=False, window_size=(-1, -1)):
     k = k.transpose(1, 2)
     v = v.transpose(1, 2)
     enable_gqa = q.size(1) != k.size(1)
-    y = _sdpa_attention(q, k, v, window_size, enable_gqa)
+    y = _sdpa_attention(q, k, v, window_size, enable_gqa, causal=causal)
     return y.transpose(1, 2)  # back to (B, T, H, D)
 
 
